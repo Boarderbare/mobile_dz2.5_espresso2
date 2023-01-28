@@ -6,27 +6,22 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasData;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-
 import static org.hamcrest.Matchers.allOf;
 
 import android.content.Intent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
-
+import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +41,7 @@ public class AppMenuTest {
     }
 
     @Test
-    public void testOpenSettings()  {
+    public void testOpenSettings() {
         ViewInteraction elementMenu = onView(Matchers.allOf(withParent(withParent(withId(R.id.toolbar)))));
         elementMenu.check(matches(isDisplayed()));
         elementMenu.perform(click());
@@ -59,4 +54,19 @@ public class AppMenuTest {
         Intents.release();
     }
 
+    @Test
+    public void testOpenGallery() {
+        IdlingRegistry.getInstance().register(EspressoIdlingResources.idlingResource);
+
+        ViewInteraction menu = onView(isAssignableFrom(AppCompatImageButton.class));
+        menu.check(matches(isDisplayed()));
+        menu.perform(click());
+
+        ViewInteraction gallery = onView(withId(R.id.nav_gallery));
+        gallery.perform(click());
+        ViewInteraction itemSeven = onView(allOf(withId(R.id.item_number), withText("7")));
+        itemSeven.check(matches(withText("7")));
+
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResources.idlingResource);
+    }
 }
