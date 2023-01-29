@@ -22,6 +22,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
 import org.hamcrest.Matchers;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +34,15 @@ public class AppMenuTest {
     @Rule
     public ActivityTestRule<MainActivity> activityTestRule =
             new ActivityTestRule<>(MainActivity.class);
+
+    @Before
+    public void registerIdlingResources() {
+        IdlingRegistry.getInstance().register(EspressoIdlingResources.idlingResource);
+    }
+    @After
+    public void unregisterIdlingResources() {
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResources.idlingResource);
+    }
 
     @Test
     public void testCheckText() {
@@ -56,8 +67,6 @@ public class AppMenuTest {
 
     @Test
     public void testOpenGallery() {
-        IdlingRegistry.getInstance().register(EspressoIdlingResources.idlingResource);
-
         ViewInteraction menu = onView(isAssignableFrom(AppCompatImageButton.class));
         menu.check(matches(isDisplayed()));
         menu.perform(click());
@@ -66,7 +75,17 @@ public class AppMenuTest {
         gallery.perform(click());
         ViewInteraction itemSeven = onView(allOf(withId(R.id.item_number), withText("7")));
         itemSeven.check(matches(withText("7")));
+        }
+    @Test
+    public void testAmountItems() {
+        ViewInteraction menu = onView(isAssignableFrom(AppCompatImageButton.class));
+        menu.check(matches(isDisplayed()));
+        menu.perform(click());
 
-        IdlingRegistry.getInstance().unregister(EspressoIdlingResources.idlingResource);
+        ViewInteraction gallery = onView(withId(R.id.nav_gallery));
+        gallery.perform(click());
+        ViewInteraction recycleView = onView(withId(R.id.recycle_view));
+        recycleView.check(
+                matches(CustomViewMatcher.recyclerViewSizeMatcher(10)));
     }
 }
